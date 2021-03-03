@@ -290,7 +290,7 @@ public class PlayerController : PhysicsEntity
     internal void TakeDamage(float amount, Vector2 damageSourcePosition)
     {
         health.TakeDamage(amount);
-        Vector2 damageDirection = (Vector2) transform.position - damageSourcePosition;
+        Vector2 damageDirection = Vector2.up;//(Vector2) transform.position - damageSourcePosition;
         stateMachine.State = StartImpulse(damageDirection.normalized * damageImpulseSpeed);
         animator.SetTrigger("Damaged");
 
@@ -453,16 +453,12 @@ public class PlayerController : PhysicsEntity
             print("impulse");
             Speed.y = jumpSpeed;
         }
-        else if (other.collider.tag == "DamageSource")
+        else
         {
             DamageSource damageSource = other.gameObject.GetComponent<DamageSource>();
             if (damageSource != null)
             {
                 TakeDamage(damageSource.Damage, other.transform.position);
-            }
-            else
-            {
-                Debug.LogError("damageSource without damageComponent");
             }
         }
 

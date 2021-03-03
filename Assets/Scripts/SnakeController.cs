@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(Health))]
-public class Enemy : PhysicsEntity, IHitable
+public class SnakeController : PhysicsEntity, IHitable
 {
     GameObject player;
     Health health;

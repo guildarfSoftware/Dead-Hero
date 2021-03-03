@@ -11,27 +11,32 @@ public class StateMachine
 
     bool StartCallNeeded;
 
-    Func<int>[] updateCallbacks;
-    Action[] endCallbacks, startCallbacks;
-    Func<IEnumerator>[] coroutineCallbacks;
+
+    struct StateInfo
+    {
+        public Func<int> updateCallback;
+        public Action endCallback, startCallback;
+        public Func<IEnumerator> coroutineCallback;
+
+    }
+
+    StateInfo[] States;
+    StateInfo CurrentState{ get => States[_state];}
     Coroutine activeCoroutine;
     private int maxState;
 
     public StateMachine(int nStates)
     {
         maxState = nStates;
-        updateCallbacks = new Func<int>[nStates];
-        endCallbacks = new Action[nStates];
-        startCallbacks = new Action[nStates];
-        coroutineCallbacks = new Func<IEnumerator>[nStates];
+        States = new StateInfo[nStates];
     }
 
     public void SetCallbacks(int state, Func<int> updateCallback, Func<IEnumerator> coroutineCallback, Action startCallback, Action endCallback)
     {
-        updateCallbacks[state] = updateCallback;
-        endCallbacks[state] = endCallback;
-        startCallbacks[state] = startCallback;
-        coroutineCallbacks[state] = coroutineCallback;
+        States[state].updateCallback = updateCallback;
+        States[state].endCallback = endCallback;
+        States[state].startCallback = startCallback;
+        States[state].coroutineCallback = coroutineCallback;
     }
 
     public void Update()
@@ -39,20 +44,20 @@ public class StateMachine
         if (State != _state)
         {
             //end  callback
-            if (!StateOutOfBounds()) endCallbacks[_state]?.Invoke();
+            if (ValidState()) CurrentState.endCallback?.Invoke();
             
             PreviousState = _state;
 
             _state = State;
 
             //start callback
-            if (!StateOutOfBounds()) startCallbacks[_state]?.Invoke();
+            if (ValidState()) CurrentState.startCallback?.Invoke();
 
         }
         //update callback
-        if (!StateOutOfBounds() && updateCallbacks[_state] != null)
+        if (ValidState() && CurrentState.updateCallback != null)
         {
-            State = updateCallbacks[_state]();
+            State = CurrentState.updateCallback();
         }
     }
 
@@ -60,19 +65,19 @@ public class StateMachine
     {
         while (true)
         {
-            if (StateOutOfBounds() || coroutineCallbacks[_state] == null)
+            if (!ValidState() || CurrentState.coroutineCallback == null)
             {
                 yield return null;
             }
             else
             {
-                yield return coroutineCallbacks[_state]();
+                yield return CurrentState.coroutineCallback();
             }
         }
     }
 
-    private bool StateOutOfBounds()
+    private bool ValidState()
     {
-        return _state < 0 || _state >= maxState;
+        return _state >= 0 && _state < Mathf.Min(maxState,States.Length);
     }
 }
