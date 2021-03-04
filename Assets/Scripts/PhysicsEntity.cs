@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -15,41 +16,106 @@ public class PhysicsEntity : MonoBehaviour
         left,
     }
 
+    
+
+    float minSpeedForDynamic = 0.01f;
+
+    bool movingHorizontally { get => Mathf.Abs(Speed.x) > minSpeedForDynamic; }
+    bool movingVertically { get => Mathf.Abs(Speed.y) > minSpeedForDynamic; }
+
+    float dinamicSkinWidth = 0.3f;
+    float dinamicSkinHeight = 0.2f;
+    float staticSkinSize = 0.015f;
     RaycastHit2D[] hits = new RaycastHit2D[16];
     public const Facing FacingRight = Facing.right;
     public const Facing FacingLeft = Facing.left;
     protected Facing facingDirection;
     protected Vector2 Speed;
     protected bool IgnoreGravity, IgnoreDrag;
-
-    void Move(Vector2 position)
+    Bounds collisionBounds;
+    Vector2 currentSkinSize;
+    void Move(Vector2 movement)
     {
-        _mainCollider = GetComponent<Collider2D>();
-        int nHits = Physics2D.BoxCastNonAlloc(_mainCollider.bounds.center, _mainCollider.bounds.size, 0, position.normalized, hits, position.magnitude, SolidLayer);
+        if (_mainCollider == null) _mainCollider = GetComponent<Collider2D>();
 
-        RaycastHit2D? closestCollision = null;
+        UpdateSkinwidth();
+        ExtDebug.DrawBox(collisionBounds.center, collisionBounds.extents, Quaternion.identity, Color.green);
+
+        CheckHorizontalMovement(ref movement);
+        CheckVerticalMovement(ref movement);
+
+        transform.Translate(movement);
+        ExtDebug.DrawBox(collisionBounds.center + (Vector3)movement, collisionBounds.extents, Quaternion.identity, Color.red);
+    }
+
+    private void UpdateSkinwidth()
+    {
+        collisionBounds = _mainCollider.bounds;
+
+        collisionBounds.Expand(-staticSkinSize);
+
+        Vector2 skinAdaptedSize = collisionBounds.size;
+
+        if (movingHorizontally)
+        {
+            skinAdaptedSize.y = Mathf.Max(skinAdaptedSize.y - dinamicSkinHeight * 2, 0.01f);
+        }
+        if (movingVertically)
+        {
+            skinAdaptedSize.x = Mathf.Max(skinAdaptedSize.x - dinamicSkinWidth * 2, 0.01f);
+        }
+        collisionBounds.size = skinAdaptedSize;
+
+        currentSkinSize = (_mainCollider.bounds.size - collisionBounds.size)/2;
+    }
+
+    private void CheckHorizontalMovement(ref Vector2 movement)
+    {
+        float sign = Math.Sign(movement.x);
+        float distance = Mathf.Abs(movement.x) + currentSkinSize.x;
+        Vector2 direction = Vector2.right * sign;
+        int nHits = Physics2D.BoxCastNonAlloc(collisionBounds.center, collisionBounds.size, 0, direction, hits, distance, SolidLayer);
+        float closestHitDistance = float.MaxValue;
+        ExtDebug.DrawBox(collisionBounds.center + (Vector3)direction * distance, collisionBounds.extents, Quaternion.identity, Color.magenta);
+        if (nHits == 0) return;
+
         for (int i = 0; i < nHits; i++)
         {
             RaycastHit2D hit = hits[i];
-            if (closestCollision == null || closestCollision.Value.distance > hit.distance)
+            if (hit.distance < closestHitDistance)
             {
-                closestCollision = hit;
+                closestHitDistance = hit.distance;
             }
         }
-        if (closestCollision != null)
+        movement.x = (closestHitDistance - currentSkinSize.x) * sign;
+        Speed.x = 0;
+    }
+
+    private void CheckVerticalMovement(ref Vector2 movement)
+    {
+        float sign = Math.Sign(movement.y);
+        float distance = Mathf.Abs(movement.y) + currentSkinSize.y;
+        Vector2 direction = Vector2.up * sign;
+        int nHits = Physics2D.BoxCastNonAlloc(collisionBounds.center, collisionBounds.size, 0, direction, hits, distance, SolidLayer);
+        float closestHitDistance = float.MaxValue;
+
+        ExtDebug.DrawBox(collisionBounds.center + (Vector3)direction * distance, collisionBounds.extents, Quaternion.identity, Color.yellow);
+        if (nHits == 0) return;
+
+        for (int i = 0; i < nHits; i++)
         {
-            if (closestCollision.Value.normal.x != 0)
+            RaycastHit2D hit = hits[i];
+            if (hit.distance < closestHitDistance)
             {
-                Speed.x = 0;
+                closestHitDistance = hit.distance;
             }
-            if (closestCollision.Value.normal.y != 0)
-            {
-                Speed.y = 0;
-            }
-            Bounds b = closestCollision.Value.collider.bounds;
-            ExtDebug.DrawBoxCast2D(b.center, b.extents, 0, Vector2.zero, 0, Color.red);
         }
-        transform.Translate(Speed * Time.deltaTime);
+        if(Speed.y>0)
+        {
+            print("vertical hit");
+        }
+        movement.y = (closestHitDistance - currentSkinSize.y) * sign;
+        Speed.y = 0;
     }
 
     protected void Update()
