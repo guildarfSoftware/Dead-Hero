@@ -4,8 +4,10 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Stompable
   - Map
+  - Stomper
+  - Enemy
+  - Stompable
   - Hitable
   layers:
   - Default
@@ -15,10 +17,10 @@ TagManager:
   - Water
   - UI
   - Obstacles
-  - Trigger
-  - 
-  - 
-  - 
+  - Player
+  - Enemy
+  - Stompable
+  - Stomper
   - 
   - 
   - 

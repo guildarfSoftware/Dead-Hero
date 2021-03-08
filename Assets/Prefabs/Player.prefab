@@ -1,5 +1,76 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1 &1266330371
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1266330372}
+  - component: {fileID: 1266330373}
+  - component: {fileID: 1266330374}
+  m_Layer: 10
+  m_Name: Stomper
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1266330372
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266330371}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4722116570607329602}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!61 &1266330373
+BoxCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266330371}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 1
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: -0.6}
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0, y: 0}
+    oldSize: {x: 0, y: 0}
+    newSize: {x: 0, y: 0}
+    adaptiveTilingThreshold: 0
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
+  serializedVersion: 2
+  m_Size: {x: 0.6, y: 0.15}
+  m_EdgeRadius: 0
+--- !u!114 &1266330374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1266330371}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbe5ec83579757d4287e1fa1ed6b8722, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  StompDamage: 1
 --- !u!1 &1575121091311615902
 GameObject:
   m_ObjectHideFlags: 0
@@ -11,6 +82,7 @@ GameObject:
   - component: {fileID: 7099763547896370744}
   - component: {fileID: 7956407874714925506}
   - component: {fileID: 1575121091311615903}
+  - component: {fileID: 207247679}
   m_Layer: 7
   m_Name: leftAtack
   m_TagString: Untagged
@@ -184,6 +256,18 @@ PolygonCollider2D:
       - {x: 1.14, y: -2.49}
       - {x: 1.2099999, y: -2.44}
       - {x: 1.27, y: -2.3799999}
+--- !u!114 &207247679
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1575121091311615902}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5469e8bce4c2b754188cbef512d3d1d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4722116570595173194
 GameObject:
   m_ObjectHideFlags: 0
@@ -305,6 +389,7 @@ Transform:
   - {fileID: 4722116572004407584}
   - {fileID: 4722116572367877054}
   - {fileID: 4722116570595173302}
+  - {fileID: 1266330372}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -324,13 +409,16 @@ MonoBehaviour:
   SolidLayer:
     serializedVersion: 2
     m_Bits: 64
+  Speed: {x: 0, y: 0}
+  stompDamage: 0
   StaffDamage: 5
+  stomper: {fileID: 1266330374}
   groundedTime: 0.1
   runSpeed: 8
   jumpSpeed: 9
   boostedJump: 13
   attackImpulseSpeed: 9
-  damageImpulseSpeed: 5
+  knockbackSpeed: 5
   attackUpwardImpulse: 4
   jumpBufferTime: 0.05
   impulseTime: 0.3
@@ -360,7 +448,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -0.05, y: -0.08}
+  m_Offset: {x: 0, y: -0.1}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -371,7 +459,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.4, y: 0.9}
+  m_Size: {x: 0.5, y: 0.9}
   m_EdgeRadius: 0
 --- !u!50 &4722116570607329603
 Rigidbody2D:
@@ -381,9 +469,9 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 4722116570607329604}
-  m_BodyType: 0
+  m_BodyType: 1
   m_Simulated: 1
-  m_UseFullKinematicContacts: 0
+  m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
   m_Mass: 1
   m_LinearDrag: 0
@@ -476,6 +564,7 @@ GameObject:
   - component: {fileID: 4722116571436781509}
   - component: {fileID: 4722116571436781507}
   - component: {fileID: 4722116571436781506}
+  - component: {fileID: 1635353441}
   m_Layer: 7
   m_Name: highAtack
   m_TagString: Untagged
@@ -649,6 +738,18 @@ PolygonCollider2D:
       - {x: 1.14, y: -2.49}
       - {x: 1.2099999, y: -2.44}
       - {x: 1.27, y: -2.3799999}
+--- !u!114 &1635353441
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4722116571436781508}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5469e8bce4c2b754188cbef512d3d1d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4722116572004407587
 GameObject:
   m_ObjectHideFlags: 0
@@ -660,6 +761,7 @@ GameObject:
   - component: {fileID: 4722116572004407584}
   - component: {fileID: 4722116572004407598}
   - component: {fileID: 4722116572004407585}
+  - component: {fileID: 677417823}
   m_Layer: 7
   m_Name: rightAttack
   m_TagString: Untagged
@@ -833,6 +935,18 @@ PolygonCollider2D:
       - {x: 1.14, y: -2.49}
       - {x: 1.2099999, y: -2.44}
       - {x: 1.27, y: -2.3799999}
+--- !u!114 &677417823
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4722116572004407587}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5469e8bce4c2b754188cbef512d3d1d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &4722116572367877041
 GameObject:
   m_ObjectHideFlags: 0
@@ -844,6 +958,7 @@ GameObject:
   - component: {fileID: 4722116572367877054}
   - component: {fileID: 4722116572367877052}
   - component: {fileID: 4722116572367877055}
+  - component: {fileID: 2059197142}
   m_Layer: 7
   m_Name: lowAttack
   m_TagString: Untagged
@@ -1017,3 +1132,15 @@ PolygonCollider2D:
       - {x: 1.14, y: -2.49}
       - {x: 1.2099999, y: -2.44}
       - {x: 1.27, y: -2.3799999}
+--- !u!114 &2059197142
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4722116572367877041}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5469e8bce4c2b754188cbef512d3d1d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

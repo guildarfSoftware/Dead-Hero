@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.Tilemaps;
 
 [RequireComponent(typeof(Health))]
-public class SnakeController : PhysicsEntity, IHitable
+public class SnakeController : PhysicsEntity, IHitable, IStompable
 {
     GameObject player;
     Health health;
@@ -72,6 +72,12 @@ public class SnakeController : PhysicsEntity, IHitable
             stateMachine.State = StHit;
         }
     }
+
+    public void Stomped(float stompDamage)
+    {
+        stateMachine.State = StDead;
+    }
+
     #endregion
 
     #region walk State

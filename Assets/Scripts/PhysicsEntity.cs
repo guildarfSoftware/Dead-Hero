@@ -30,7 +30,7 @@ public class PhysicsEntity : MonoBehaviour
     public const Facing FacingRight = Facing.right;
     public const Facing FacingLeft = Facing.left;
     protected Facing facingDirection;
-    protected Vector2 Speed;
+    public Vector2 Speed;
     protected bool IgnoreGravity, IgnoreDrag;
     Bounds collisionBounds;
     Vector2 currentSkinSize;
