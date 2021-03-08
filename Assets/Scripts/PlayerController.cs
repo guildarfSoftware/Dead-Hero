@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerController : PhysicsEntity
 {
+    [SerializeField] float stompDamage;
     [SerializeField] float StaffDamage = 5;
     Rigidbody2D rb2d;
     SpriteRenderer spriteRenderer;
@@ -14,6 +15,7 @@ public class PlayerController : PhysicsEntity
     //StateMachine
     StateMachine stateMachine;
 
+    [SerializeField] Stomper stomper;
 
     const int StNormal = 0;
     const int StHanging = 1;
@@ -30,7 +32,7 @@ public class PlayerController : PhysicsEntity
 
     //crossState
     [SerializeField] float runSpeed = 7, jumpSpeed = 9, boostedJump = 20, attackImpulseSpeed = 9;
-    [SerializeField] private float damageImpulseSpeed = 5;
+    [SerializeField] private float knockbackSpeed = 5;
     [SerializeField] float attackUpwardImpulse = 6;
     float jumpBufferCounter; // top allow store jump input before hitting ground 
     [SerializeField] float jumpBufferTime = 0.05f;
@@ -71,7 +73,7 @@ public class PlayerController : PhysicsEntity
 
         EvaluateJump();
 
-        if ((Input.GetKeyDown(KeyCode.K) || Input.GetKeyDown(KeyCode.I) ||Input.GetKeyDown(KeyCode.J)) && canAttack)
+        if ((Input.GetKeyDown(KeyCode.K) || Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.J)) && canAttack)
         {
             return StAttacking;
         }
@@ -177,7 +179,7 @@ public class PlayerController : PhysicsEntity
     {
         attackAnimationTime = AttackAnimationDuration;
         rotationLocked = true;
-        if (Input.GetKey(KeyCode.W)||Input.GetKey(KeyCode.I)) AttackUp();
+        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.I)) AttackUp();
         else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.K)) AttackDown();
         else if (facingDirection == FacingLeft) AttackLeft();
         else AttackRight();
@@ -259,12 +261,12 @@ public class PlayerController : PhysicsEntity
         impulseCountDown = impulseTime;
         impulseHasMomentum = true;
 
-        if (Speed.y != 0)
+        if (impulse.y != 0)
         {
             Speed.y = impulse.y;
         }
 
-        if (impulse.x != 0) // pure vertical impulse maintain h speed
+        if (impulse.x != 0)
         {
             Speed.x = impulse.x;
         }
@@ -287,11 +289,13 @@ public class PlayerController : PhysicsEntity
     #region Global State methods
 
 
-    internal void TakeDamage(float amount, Vector2 damageSourcePosition)
+    internal void TakeDamage(float amount, Vector3 damageSourcePosition)
     {
         health.TakeDamage(amount);
-        Vector2 damageDirection = Vector2.up;//(Vector2) transform.position - damageSourcePosition;
-        stateMachine.State = StartImpulse(damageDirection.normalized * damageImpulseSpeed);
+        Vector3 knockbackRelativePosition = transform.position - damageSourcePosition;
+        float horizontalDirection = Mathf.Sign(knockbackRelativePosition.x);
+        Vector2 knockbackDirection = Vector2.up + Vector2.right * horizontalDirection;
+        stateMachine.State = StartImpulse(knockbackDirection.normalized * knockbackSpeed);
         animator.SetTrigger("Damaged");
 
     }
@@ -302,8 +306,8 @@ public class PlayerController : PhysicsEntity
         {
             activelyMoving = true;
             Speed.x = runSpeed;
-            impulseHasMomentum = false; 
-            if (!rotationLocked)facingDirection = FacingRight;
+            impulseHasMomentum = false;
+            if (!rotationLocked) facingDirection = FacingRight;
         }
         else if (Input.GetKey(KeyCode.A))
         {
@@ -364,7 +368,12 @@ public class PlayerController : PhysicsEntity
         return groundDragCoeficient; //different ground can have diferent drags;
     }
 
-
+    void OnStomp()
+    {
+        print("Stomp");
+        Speed.y = jumpSpeed;
+        return;
+    }
     #endregion
 
     #region Core methods
@@ -378,6 +387,8 @@ public class PlayerController : PhysicsEntity
         stateMachine.SetCallbacks(StImpulsed, ImpulseUpdate, null, ImpulseBegin, null);
         stateMachine.SetCallbacks(StAttacking, AttackUpdate, null, AttackBegin, AttackEnd);
 
+        stomper.onStomp += OnStomp;
+        StaffHitter.onObstacleHit += () => { ObtacleHit = true; print("obstacle hit"); };
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         _mainCollider = GetComponent<Collider2D>();
@@ -428,40 +439,18 @@ public class PlayerController : PhysicsEntity
         GetComponent<SpriteRenderer>().flipX = spriteNeedsFliping;
     }
 
-    private void OnTriggerEnter2D(Collider2D other)
-    {
-        if (other.tag == "Map")
-        {
-            ObtacleHit = true;
-            print("map hit");
-        }
-        else
-        {
-            IHitable hitable = other.gameObject.GetComponent<IHitable>();
-            if (hitable != null)
-            {
-                hitable.Hit(StaffDamage);
-                print("snake hit");
-            }
-
-        }
-    }
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.collider.tag == "Stompable")
+        DamageSource damageSource = other.gameObject.GetComponent<DamageSource>();
+        if (damageSource != null)
         {
-            print("impulse");
-            Speed.y = jumpSpeed;
+            TakeDamage(damageSource.Damage, other.transform.position);
         }
-        else
-        {
-            DamageSource damageSource = other.gameObject.GetComponent<DamageSource>();
-            if (damageSource != null)
-            {
-                TakeDamage(damageSource.Damage, other.transform.position);
-            }
-        }
+    }
 
+    private void OnDisable()
+    {
+        stomper.onStomp -= OnStomp;
     }
 
 

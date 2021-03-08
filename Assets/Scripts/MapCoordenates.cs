@@ -22,14 +22,14 @@ public static class MapCoordenates
         initialized = true;
     }
 
-    static public Vector2Int WorldPosTocoordenate(Vector2 worldPos)
+    static public Vector2Int WorldPosTocoordenate(Vector3 worldPos)
     {
         if(!initialized) Initialize();
         GridLayout gridLayout = tilemap.transform.parent.GetComponentInParent<GridLayout>();
         return (Vector2Int) gridLayout.WorldToCell(worldPos);
     }
 
-    static public bool IsSolid(Vector2 worldPos)
+    static public bool IsSolid(Vector3 worldPos)
     {
         Tile tile = GetTile(worldPos);
         
@@ -42,21 +42,30 @@ public static class MapCoordenates
         
     }
 
-    public static Bounds? GetCellBounds(Vector2 worldPos)
+    public static Bounds? GetCellBounds(Vector3 worldPos)
     {
         if (!initialized) Initialize();
-        
-        Vector3Int coordenate = tilemap.WorldToCell(worldPos);
 
-        Vector3 position = tilemap.GetCellCenterWorld(coordenate);
+        Vector3 position = GetTilePosition(worldPos);
         
         return new Bounds(position,tilemap.cellSize); 
     }
     
-    static Tile GetTile(Vector2 worldPos)
+    static Tile GetTile(Vector3 worldPos)
     {
         if (!initialized) Initialize();
         Vector3Int coordenate = tilemap.WorldToCell(worldPos);
         return tilemap.GetTile(coordenate) as Tile;
+    }
+
+    internal static Vector2 GetTilePosition(Vector3 worldPos)
+    {
+        if (!initialized) Initialize();
+
+        Vector3Int coordenate = tilemap.WorldToCell(worldPos);
+
+        Vector3 position = tilemap.GetCellCenterWorld(coordenate);
+
+        return position;
     }
 }
