@@ -74,7 +74,7 @@ public class PlayerController : PhysicsEntity
 
         EvaluateJump();
 
-        if ((Input.GetKeyDown(KeyCode.K) || Input.GetKeyDown(KeyCode.I) || Input.GetKeyDown(KeyCode.J)) && canAttack)
+        if (attackCommand())
         {
             return StAttacking;
         }
@@ -95,7 +95,7 @@ public class PlayerController : PhysicsEntity
     {
         if (jumpBufferCounter > 0)
         {
-            if (!Input.GetKey(KeyCode.S))
+            if (!(Input.GetAxis("Vertical") < 0))
             {
                 Speed.y = jumpSpeed;
             }
@@ -176,13 +176,18 @@ public class PlayerController : PhysicsEntity
 
     #region Attack
 
+    private bool attackCommand()
+    {
+        return (Input.GetButtonDown("Attack Normal") || Input.GetButtonDown("Attack Up") || Input.GetButtonDown("Attack Down")) && canAttack;
+    }
+
     private void AttackBegin()
     {
         attackAnimationTime = AttackAnimationDuration;
         canHitImpulse = true;
         rotationLocked = true;
-        if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.I)) AttackUp();
-        else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.K)) AttackDown();
+        if (Input.GetButton("Attack Up")) AttackUp();
+        else if (Input.GetButton("Attack Down")) AttackDown();
         else if (facingDirection == FacingLeft) AttackLeft();
         else AttackRight();
     }
@@ -314,14 +319,14 @@ public class PlayerController : PhysicsEntity
 
     private void EvaluateHorizontalControl()
     {
-        if (Input.GetKey(KeyCode.D))
+        if (Input.GetAxis("Horizontal") > 0)
         {
             activelyMoving = true;
             Speed.x = runSpeed;
             impulseHasMomentum = false;
             if (!rotationLocked) facingDirection = FacingRight;
         }
-        else if (Input.GetKey(KeyCode.A))
+        else if (Input.GetAxis("Horizontal") < 0)
         {
             activelyMoving = true;
             Speed.x = -runSpeed;
@@ -341,13 +346,13 @@ public class PlayerController : PhysicsEntity
             jumpBufferCounter = 0;
             groundedCounter = 0;
 
-            if (Input.GetKey(KeyCode.Space))
+            if (Input.GetButton("Jump"))
                 Speed.y = jumpSpeed;
             else
                 Speed.y = jumpSpeed * 0.5f;//avoid doing full jump with buffered input 
         }
 
-        if (Input.GetKeyUp(KeyCode.Space) && Speed.y > 0)
+        if (Input.GetButtonUp("Jump") && Speed.y > 0)
         {
             Speed.y = Speed.y * 0.5f;
         }
@@ -414,7 +419,7 @@ public class PlayerController : PhysicsEntity
         groundedCounter -= Time.deltaTime;
         hangCooldown -= Time.deltaTime;
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetButtonDown("Jump"))
         {
             jumpBufferCounter = jumpBufferTime;
         }
