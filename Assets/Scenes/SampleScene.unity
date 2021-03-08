@@ -191,11 +191,6 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 1575121091311615902, guid: 047bafd2dd851f34d8693832cc30739d,
-        type: 3}
-      propertyPath: m_Layer
-      value: 11
-      objectReference: {fileID: 0}
     - target: {fileID: 4722116570607329602, guid: 047bafd2dd851f34d8693832cc30739d,
         type: 3}
       propertyPath: m_RootOrder
@@ -256,20 +251,20 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player (1)
       objectReference: {fileID: 0}
-    - target: {fileID: 4722116571436781508, guid: 047bafd2dd851f34d8693832cc30739d,
+    - target: {fileID: 4722116572004407584, guid: 047bafd2dd851f34d8693832cc30739d,
         type: 3}
-      propertyPath: m_Layer
-      value: 11
+      propertyPath: m_LocalPosition.x
+      value: 0.6
       objectReference: {fileID: 0}
     - target: {fileID: 4722116572004407587, guid: 047bafd2dd851f34d8693832cc30739d,
         type: 3}
-      propertyPath: m_Layer
-      value: 11
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4722116572367877041, guid: 047bafd2dd851f34d8693832cc30739d,
+    - target: {fileID: 7099763547896370744, guid: 047bafd2dd851f34d8693832cc30739d,
         type: 3}
-      propertyPath: m_Layer
-      value: 11
+      propertyPath: m_LocalPosition.x
+      value: -0.6
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 047bafd2dd851f34d8693832cc30739d, type: 3}
@@ -283,7 +278,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1096193614}
   - component: {fileID: 1096193613}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Grid
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -5663,7 +5658,7 @@ TilemapCollider2D:
   m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_UsedByEffector: 0
-  m_UsedByComposite: 0
+  m_UsedByComposite: 1
   m_Offset: {x: 0, y: 0}
   m_MaximumTileChangeCount: 1000
   m_ExtrusionFactor: 0.00001

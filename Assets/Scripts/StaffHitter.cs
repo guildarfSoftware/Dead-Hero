@@ -7,12 +7,22 @@ public class StaffHitter : MonoBehaviour
 {
     static float StaffDamage = 2;
     [SerializeField] LayerMask obstacleLayer;
-    public static Action onObstacleHit;
+    public static Action<Vector2> onObstacleHit;
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.gameObject.layer == obstacleLayer)
+        int otherLayerMask = 1 << other.gameObject.layer;
+        if ((otherLayerMask & obstacleLayer) != 0)
         {
-            onObstacleHit?.Invoke();
+            ContactPoint2D[] contacts = new ContactPoint2D[other.contactCount];
+            other.GetContacts(contacts);
+            Vector2 normalResult = Vector2.zero;
+            foreach (var contact in contacts)
+            {
+                normalResult += contact.normal;
+            }
+            print(normalResult.normalized);
+            onObstacleHit?.Invoke(normalResult.normalized);
+
         }
 
         IHitable hitable = other.gameObject.GetComponent<IHitable>();

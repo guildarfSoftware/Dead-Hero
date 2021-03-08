@@ -62,7 +62,8 @@ public class PlayerController : PhysicsEntity
     private float attackAnimationTime;
     const float AttackAnimationDuration = 0.25f;
     Vector2 AttackDirection;
-    bool ObtacleHit;
+    bool canHitImpulse;
+    const float attackNormalMaxAngle = 45;
 
 
     #region Normal State
@@ -178,6 +179,7 @@ public class PlayerController : PhysicsEntity
     private void AttackBegin()
     {
         attackAnimationTime = AttackAnimationDuration;
+        canHitImpulse = true;
         rotationLocked = true;
         if (Input.GetKey(KeyCode.W) || Input.GetKey(KeyCode.I)) AttackUp();
         else if (Input.GetKey(KeyCode.S) || Input.GetKey(KeyCode.K)) AttackDown();
@@ -194,30 +196,12 @@ public class PlayerController : PhysicsEntity
         {
             return StNormal;
         }
-        if (ObtacleHit && !isGrounded)
-        {
-            ObtacleHit = false;
-            Vector2 impulse;
-
-            impulse = -AttackDirection * attackImpulseSpeed;
-
-            if (AttackDirection.y == 0) //horizontal hits get a up impulse
-            {
-                impulse.y = attackUpwardImpulse;
-            }
-            else if (AttackDirection.y < 0 && Speed.y > 0)
-            {
-                impulse.y = boostedJump;
-            }
-
-            return StartImpulse(impulse);
-        }
-
         return StAttacking;
     }
 
     void AttackEnd()
     {
+        canHitImpulse = false;
         rotationLocked = false;
         animator.ResetTrigger("AttackUp");
         animator.ResetTrigger("AttackLeft");
@@ -245,6 +229,32 @@ public class PlayerController : PhysicsEntity
     {
         AttackDirection = Vector2.down;
         animator.SetTrigger("AttackDown");
+    }
+
+    void ObstacleHit(Vector2 normal)
+    {
+        if (isGrounded || !canHitImpulse) return;
+
+        float angleAttackNormal = Mathf.Abs(Vector2.Angle(normal, -AttackDirection));
+
+        if (angleAttackNormal > attackNormalMaxAngle) return;
+
+        canHitImpulse = false;
+        Vector2 impulse;
+
+        impulse = -AttackDirection * attackImpulseSpeed;
+
+        if (AttackDirection.y == 0) //horizontal hits get a up impulse
+        {
+            impulse.y = attackUpwardImpulse;
+        }
+        else if (AttackDirection.y < 0 && Speed.y > 0)
+        {
+            impulse.y = boostedJump;
+        }
+
+        stateMachine.State = StartImpulse(impulse);
+
     }
 
     #endregion
@@ -283,6 +293,8 @@ public class PlayerController : PhysicsEntity
 
         return StImpulsed;
     }
+
+
 
     #endregion
 
@@ -388,7 +400,7 @@ public class PlayerController : PhysicsEntity
         stateMachine.SetCallbacks(StAttacking, AttackUpdate, null, AttackBegin, AttackEnd);
 
         stomper.onStomp += OnStomp;
-        StaffHitter.onObstacleHit += () => { ObtacleHit = true; print("obstacle hit"); };
+        StaffHitter.onObstacleHit += ObstacleHit;
         spriteRenderer = GetComponent<SpriteRenderer>();
         animator = GetComponent<Animator>();
         _mainCollider = GetComponent<Collider2D>();
@@ -451,6 +463,7 @@ public class PlayerController : PhysicsEntity
     private void OnDisable()
     {
         stomper.onStomp -= OnStomp;
+        StaffHitter.onObstacleHit -= ObstacleHit;
     }
 
 
