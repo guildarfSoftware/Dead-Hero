@@ -6,10 +6,11 @@ using UnityEngine;
 public class StaffHitter : MonoBehaviour
 {
     static float StaffDamage = 2;
+    [SerializeField] LayerMask obstacleLayer;
     public static Action onObstacleHit;
-    private void OnTriggerEnter2D(Collider2D other)
+    private void OnCollisionEnter2D(Collision2D other)
     {
-        if (other.tag == "Map")
+        if (other.gameObject.layer == obstacleLayer)
         {
             onObstacleHit?.Invoke();
         }
