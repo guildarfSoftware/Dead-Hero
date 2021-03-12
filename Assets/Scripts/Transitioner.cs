@@ -40,7 +40,8 @@ public class Transitioner : MonoBehaviour
         Vector2 transitionSpeed = targetSize / time;
         while (maskRectTransform.sizeDelta.magnitude > 0)
         {
-            maskRectTransform.sizeDelta -= transitionSpeed * Time.deltaTime;
+            Vector2 rest =transitionSpeed * Time.deltaTime;
+            maskRectTransform.sizeDelta -= rest;
 
             if (maskRectTransform.sizeDelta.x < 0)
             {
