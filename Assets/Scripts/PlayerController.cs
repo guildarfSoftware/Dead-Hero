@@ -5,6 +5,7 @@ using UnityEngine;
 
 public class PlayerController : PhysicsEntity
 {
+    #region Global Variables
     [SerializeField] float stompDamage;
     [SerializeField] float StaffDamage = 5;
     Rigidbody2D rb2d;
@@ -21,7 +22,8 @@ public class PlayerController : PhysicsEntity
     const int StHanging = 1;
     const int StImpulsed = 2;
     const int StAttacking = 3;
-    const int StateNumber = 4;
+    const int StDead = 4;
+    const int StateNumber = 5;
 
     //Ground detection
     bool isGrounded;
@@ -65,6 +67,13 @@ public class PlayerController : PhysicsEntity
     bool canHitImpulse;
     const float attackNormalMaxAngle = 45;
 
+    //Dead
+
+    private float deadAnimationTime = 1.5f;
+    private float deadAnimationCounter;
+
+
+    #endregion
 
     #region Normal State
 
@@ -82,6 +91,11 @@ public class PlayerController : PhysicsEntity
         if (CanHang())
         {
             return StHanging;
+        }
+
+        if (health.IsDead)
+        {
+            return StDead;
         }
 
 
@@ -293,6 +307,7 @@ public class PlayerController : PhysicsEntity
 
         if (impulseCountDown < 0)
         {
+            if (health.IsDead) return StDead;
             return StNormal;
         }
 
@@ -303,17 +318,44 @@ public class PlayerController : PhysicsEntity
 
     #endregion
 
+    #region Dead
+
+    void DeadBegin()
+    {
+        animator.SetBool("Dead", true);
+        deadAnimationCounter = deadAnimationTime;
+        rb2d.simulated = false;
+    }
+
+    int DeadUpdate()
+    {
+        deadAnimationCounter -= Time.deltaTime;
+        if (deadAnimationCounter < 0)
+        {
+            return StNormal;
+        }
+        return StDead;
+    }
+    void DeadEnd()
+    {   
+        animator.SetBool("Dead", false);
+        rb2d.simulated = true;
+    }
+
+    #endregion
+
     #region Global State methods
 
 
     internal void TakeDamage(float amount, Vector3 damageSourcePosition)
     {
-        health.TakeDamage(amount);
         Vector3 knockbackRelativePosition = transform.position - damageSourcePosition;
         float horizontalDirection = Mathf.Sign(knockbackRelativePosition.x);
         Vector2 knockbackDirection = Vector2.up + Vector2.right * horizontalDirection;
         stateMachine.State = StartImpulse(knockbackDirection.normalized * knockbackSpeed);
+        health.TakeDamage(amount);
         animator.SetTrigger("Damaged");
+        if(health.IsDead) animator.SetBool("Dead",true);
 
     }
 
@@ -403,6 +445,7 @@ public class PlayerController : PhysicsEntity
         stateMachine.SetCallbacks(StHanging, HangingUpdate, null, HangingBegin, HangingEnd);
         stateMachine.SetCallbacks(StImpulsed, ImpulseUpdate, null, ImpulseBegin, null);
         stateMachine.SetCallbacks(StAttacking, AttackUpdate, null, AttackBegin, AttackEnd);
+        stateMachine.SetCallbacks(StDead, DeadUpdate, null, DeadBegin, DeadEnd);
 
         stomper.onStomp += OnStomp;
         StaffHitter.onObstacleHit += ObstacleHit;
@@ -410,7 +453,6 @@ public class PlayerController : PhysicsEntity
         animator = GetComponent<Animator>();
         _mainCollider = GetComponent<Collider2D>();
         health = GetComponent<Health>();
-
     }
 
     new void Update()
