@@ -41,16 +41,14 @@ public class PlayerController : PhysicsEntity
     private bool impulseHasMomentum;
     bool rotationLocked;
 
-    Collider2D mainCollider;
     private bool canAttack = true;
     private bool activelyMoving;
     //Normal
 
     //Hanging
     Vector2 hangRaycastOffset = new Vector2(0, 0.1f);
-    Vector2 handPositionHangingRight = new Vector2(0.325f, 0.17f);
-    Vector2 handPositionHangingLeft = new Vector2(-0.325f, 0.17f);
-    private const float hangDistance = 0.2f;
+    [SerializeField] Transform hangPointRight, hangPointLeft;
+    private const float hangDistance = 0.05f;
     private const float hangCooldownTime = 0.5f;
     float hangCooldown;
     private Bounds? _hangBlockBounds;
@@ -133,12 +131,12 @@ public class PlayerController : PhysicsEntity
         if (facingDirection == FacingRight)
         {
             hangingCorner = new Vector2(hangBlockBounds.min.x, hangBlockBounds.max.y);
-            handPosition = (Vector2)transform.position + handPositionHangingRight;
+            handPosition = hangPointRight.position;
         }
         else
         {
             hangingCorner = hangBlockBounds.max;
-            handPosition = (Vector2)transform.position + handPositionHangingLeft;
+            handPosition = hangPointLeft.position;
         }
 
         transform.Translate(hangingCorner - handPosition);
@@ -161,12 +159,12 @@ public class PlayerController : PhysicsEntity
 
         if (facingDirection == FacingLeft)
         {
-            position = (Vector2)transform.position + handPositionHangingLeft;
+            position = hangPointLeft.position;
             direction = Vector2.left;
         }
         else
         {
-            position = (Vector2)transform.position + handPositionHangingRight;
+            position = hangPointRight.position;
             direction = Vector2.right;
         }
 
@@ -176,14 +174,14 @@ public class PlayerController : PhysicsEntity
         bool hangBlockIsSolid = grabBlockHit.collider != null;
         bool upperSpaceOcupied = freeSpaceHit.collider != null;
 
-        if (hangBlockIsSolid)
+        if (hangBlockIsSolid && !upperSpaceOcupied)
         {
             Vector2 blockPosition = position - hangRaycastOffset + direction * hangDistance;
-            _hangBlockBounds = grabBlockHit.collider.bounds;
             _hangBlockBounds = MapCoordenates.GetCellBounds(blockPosition);
+            return true;
         }
 
-        return hangBlockIsSolid && !upperSpaceOcupied;
+        return false;
     }
 
     #endregion
@@ -337,7 +335,7 @@ public class PlayerController : PhysicsEntity
         return StDead;
     }
     void DeadEnd()
-    {   
+    {
         animator.SetBool("Dead", false);
         rb2d.simulated = true;
     }
@@ -355,7 +353,7 @@ public class PlayerController : PhysicsEntity
         stateMachine.State = StartImpulse(knockbackDirection.normalized * knockbackSpeed);
         health.TakeDamage(amount);
         animator.SetTrigger("Damaged");
-        if(health.IsDead) animator.SetBool("Dead",true);
+        if (health.IsDead) animator.SetBool("Dead", true);
 
     }
 
@@ -500,6 +498,8 @@ public class PlayerController : PhysicsEntity
 
     private void OnCollisionEnter2D(Collision2D other)
     {
+        if(other.otherCollider!= _mainCollider) return;
+        
         DamageSource damageSource = other.gameObject.GetComponent<DamageSource>();
         if (damageSource != null)
         {
