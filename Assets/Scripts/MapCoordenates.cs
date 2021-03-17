@@ -46,10 +46,12 @@ public static class MapCoordenates
     public static Bounds? GetCellBounds(Vector3 worldPos)
     {
         if (tilemap == null) Initialize();
+        Vector3Int coordenate = tilemap.WorldToCell(worldPos);
+        Bounds bounds =tilemap.GetBoundsLocal(coordenate);
+        bounds.center += bounds.extents;
+        return bounds;
 
-        Vector3 position = GetTilePosition(worldPos);
-
-        return new Bounds(position, tilemap.cellSize);
+        //return new Bounds(position, tilemap.cellSize);
     }
 
     static Tile GetTile(Vector3 worldPos)
