@@ -46,7 +46,7 @@ public class PlayerController : PhysicsEntity
     //Normal
 
     //Hanging
-    Vector2 hangRaycastOffset = new Vector2(0, 0.1f);
+    Vector2 hangRaycastOffset = new Vector2(0, 0.3f);
     [SerializeField] Transform hangPointRight, hangPointLeft;
     private const float hangDistance = 0.05f;
     private const float hangCooldownTime = 0.5f;
