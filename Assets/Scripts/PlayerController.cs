@@ -171,8 +171,8 @@ public class PlayerController : PhysicsEntity
         RaycastHit2D grabBlockHit = Physics2D.Raycast(position - hangRaycastOffset, direction, hangDistance, SolidLayer);
         RaycastHit2D freeSpaceHit = Physics2D.Raycast(position + hangRaycastOffset, direction, hangDistance, SolidLayer);
 
-        bool hangBlockIsSolid = MapCoordenates.IsSolid(grabBlockHit.point);
-        bool upperSpaceOcupied = MapCoordenates.IsSolid(freeSpaceHit.point);
+        bool hangBlockIsSolid = MapCoordenates.IsSolid(grabBlockHit.point + direction * hangDistance);
+        bool upperSpaceOcupied = MapCoordenates.IsSolid(freeSpaceHit.point + direction * hangDistance);
 
         if (hangBlockIsSolid && !upperSpaceOcupied)
         {
@@ -498,8 +498,8 @@ public class PlayerController : PhysicsEntity
 
     private void OnCollisionEnter2D(Collision2D other)
     {
-        if(other.otherCollider!= _mainCollider) return;
-        
+        if (other.otherCollider != _mainCollider) return;
+
         DamageSource damageSource = other.gameObject.GetComponent<DamageSource>();
         if (damageSource != null)
         {
