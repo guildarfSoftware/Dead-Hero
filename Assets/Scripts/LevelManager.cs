@@ -8,7 +8,7 @@ public class LevelManager : MonoBehaviour
 {
     int currentLevel;
     [SerializeField] int nextLevel;
-    private int firstLevelIndex=1;
+    static int firstLevelIndex=1;
 
     private void Start()
     {
@@ -16,6 +16,11 @@ public class LevelManager : MonoBehaviour
         if (player != null) player.GetComponent<Health>().OnDeath += RestartLevel;
         currentLevel = SceneManager.GetActiveScene().buildIndex;
 
+    }
+
+    public void NextLevel()
+    {
+        StartCoroutine(LoadScene(nextLevel, 0, 0.6f));
     }
 
     IEnumerator StartTransition()
@@ -28,7 +33,7 @@ public class LevelManager : MonoBehaviour
 
     }
 
-    internal void StartFirstLevel()
+    public void StartFirstLevel()
     {
         StartCoroutine(LoadScene(firstLevelIndex, 0, 0.6f));
     }
