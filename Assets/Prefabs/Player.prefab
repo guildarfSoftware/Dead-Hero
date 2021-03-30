@@ -328,11 +328,11 @@ MonoBehaviour:
   stomper: {fileID: 1266330374}
   groundedTime: 0.1
   runSpeed: 8
-  jumpSpeed: 9
+  jumpSpeed: 10.5
   boostedJump: 13
   attackImpulseSpeed: 9
   knockbackSpeed: 5
-  attackUpwardImpulse: 4
+  attackUpwardImpulse: 6
   jumpBufferTime: 0.05
   hangPointRight: {fileID: 2616197859899361355}
   hangPointLeft: {fileID: 3971806379998987148}
