@@ -7,13 +7,14 @@ public class ExitScript : MonoBehaviour
 {
 
 
+    [SerializeField] int nextLevel;
     private void OnCollisionEnter2D(Collision2D other)
     {
 
         LevelManager manager = FindObjectOfType<LevelManager>();
         if (manager != null)
         {
-            manager.NextLevel();
+            manager.NextLevel(nextLevel);
         }
     }
 

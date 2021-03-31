@@ -451,6 +451,13 @@ public class PlayerController : PhysicsEntity
         animator = GetComponent<Animator>();
         _mainCollider = GetComponent<Collider2D>();
         health = GetComponent<Health>();
+        //health.OnDeath += Initialize;
+        Initialize();
+    }
+
+    public void Initialize()
+    {
+        health.SetHealth(1);
     }
 
     new void Update()
