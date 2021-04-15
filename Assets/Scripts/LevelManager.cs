@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
+    static int mainMenuIndex = 0;
     static int firstLevelIndex = 1;
     int currentLevel = -1;
 
@@ -21,13 +22,13 @@ public class LevelManager : MonoBehaviour
         {
             playerHealth = player.GetComponent<Health>();
             playerHealth.OnDeath += RestartLevel;
-        } 
+        }
         UpdateLevelInfo();
     }
 
     public void NextLevel(int nextLevelIndex)
     {
-        StartCoroutine(LoadScene(nextLevelIndex, 0, 0.6f));
+        StartCoroutine(LoadScene(nextLevelIndex, 0.3f, 0.6f));
     }
 
     IEnumerator StartTransition()
@@ -50,9 +51,18 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(waitTime);
         yield return transitioner.TransitionOut(fadeOutTime);
         yield return SceneManager.LoadSceneAsync(sceneIndex);
-        UpdateLevelInfo();
-        if (playerHealth.IsDead) player.GetComponent<PlayerController>().Initialize();
-        player.transform.position = LevelInfo.startPoint;
+
+        if (sceneIndex == mainMenuIndex)
+        {
+            PersistentObjectSpawner.DestroyPersistentObject();
+            yield break;
+        }
+        else
+        {
+            UpdateLevelInfo();
+            if (playerHealth.IsDead) player.GetComponent<PlayerController>().Initialize();
+            player.transform.position = (LevelInfo != null) ? LevelInfo.startPoint : Vector3.zero;
+        }
         yield return new WaitForSeconds(0.2f);
         yield return transitioner.TransitionIn(fadeInTime);
     }

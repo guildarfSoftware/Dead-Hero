@@ -21,7 +21,7 @@ public class MainMenuScript : MonoBehaviour
         yield return transitioner.TransitionOut(0);
         yield return SceneManager.LoadSceneAsync(firstLevel);
         yield return transitioner.TransitionIn(0.6f);
-        Destroy(transitioner);
+        Destroy(transitioner.gameObject);
         Destroy(gameObject);
     }
 
