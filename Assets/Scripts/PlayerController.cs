@@ -169,6 +169,7 @@ public class PlayerController : PhysicsEntity
         }
 
         RaycastHit2D grabBlockHit = Physics2D.Raycast(position - hangRaycastOffset, direction, hangDistance, SolidLayer);
+        if(grabBlockHit.collider == null) return false;
         RaycastHit2D freeSpaceHit = Physics2D.Raycast(position + hangRaycastOffset, direction, hangDistance, SolidLayer);
 
         bool hangBlockIsSolid = MapCoordenates.IsSolid(grabBlockHit.point + direction * hangDistance);

@@ -78,25 +78,20 @@ public class SnakeController : PhysicsEntity, IHitable, IStompable
         if (canAttackPlayer) return StAtacking;
 
         if (stuck) return StWalking;
-        Vector2 movingDirection = Speed.normalized;
-        float snakeWidth = _mainCollider.bounds.extents.x;
-        snakeWidth -= colliderSizeMargin;
-        Vector2 currentTilePosition = MapCoordenates.GetTilePosition(transform.position - (Vector3)(snakeWidth * movingDirection));
+        Vector3 movingDirection = Speed.normalized;
 
-        if (IsWalkable(currentTilePosition + movingDirection))
-            return StWalking;
-
-
-        if (IsWalkable(currentTilePosition - movingDirection))
+        if (!IsWalkable(transform.position + movingDirection))
         {
-            ChangeDirection();
+            if (IsWalkable(transform.position - movingDirection))
+            {
+                ChangeDirection();
+            }
+            else
+            {
+                stuck = true;
+                Speed.x = 0;
+            }
         }
-        else
-        {
-            stuck = true;
-            Speed.x = 0;
-        }
-
         return StWalking;
     }
 
@@ -105,10 +100,10 @@ public class SnakeController : PhysicsEntity, IHitable, IStompable
         Speed.x = 0;
     }
 
-    bool IsWalkable(Vector2 position)
+    bool IsWalkable(Vector3 position)
     {
         bool isObstructed = MapCoordenates.IsSolid(position);
-        bool hasFloor = MapCoordenates.IsSolid(position + Vector2.down);
+        bool hasFloor = MapCoordenates.IsSolid(position + Vector3.down);
 
         return !isObstructed && hasFloor;
     }
