@@ -3,23 +3,28 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PersistebObjectSpawner : MonoBehaviour
+public class PersistentObjectSpawner : MonoBehaviour
 {
     [SerializeField] GameObject persistentObjectPrefab;
-    static bool hasSPawned;
+    static GameObject _persistentObject;
     // Start is called before the first frame update
     void Awake()
     {
-        if(hasSPawned) return;
+        if(_persistentObject != null) return;
 
-        SpawnPersistentObject();
-
-        hasSPawned = true;
+        _persistentObject = SpawnPersistentObject();
     }
 
-    private void SpawnPersistentObject()
+    private GameObject SpawnPersistentObject()
     {
         GameObject persistentObject = Instantiate(persistentObjectPrefab,Vector3.zero,Quaternion.identity);
         DontDestroyOnLoad(persistentObject);
+
+        return persistentObject;
+    }
+
+    public static void DestroyPersistentObject()
+    {
+        Destroy(_persistentObject);
     }
 }
